@@ -1,8 +1,7 @@
-import os
-import json
 from os.path import expanduser
 from ConfigParser import ConfigParser
 from boto3.session import Session
+
 
 class AwsConnectionConfig():
     # Home directory of the user. This will ensure all platforms are fine
