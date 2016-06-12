@@ -4,12 +4,12 @@ import os
 import sys
 from argparse import ArgumentParser
 from prettytable import PrettyTable
-from awscore.AwsConnectionConfig import AwsConnectionConfig
+from awscore.AwsConnection import AwsConnection
 
 
-def listVpcs(awsConnConf, doption):
+def listVpcs(awsconnection, doption):
     # session client for ec2
-    client = awsConnConf.session.client('ec2')
+    client = awsconnection.session.client('ec2')
     # all vpc information in the region
     allVpcs = client.describe_vpcs()
     x = PrettyTable(["Vpc Id", "Name"])
@@ -33,13 +33,15 @@ def listVpcs(awsConnConf, doption):
         print x.get_html_string()        
 
 
-def getRoute53Records(client, doption):
+def getRoute53Records(awsconnection, doption):
+    # Route53 client
+    clientR53 = awsconnection.session.client('route53')
     print "DNS Records(CNAMEs)"
     x = PrettyTable(["CNAME", "ELB/ILB DNS Name"])
     x.align["CNAME"] = "l"
     x.align["ELB/ILB DNS Name"] = "l"    
-    for zone in client.list_hosted_zones()['HostedZones']:
-        for rrsets in client.list_resource_record_sets(HostedZoneId=zone['Id'])['ResourceRecordSets']:
+    for zone in clientR53.list_hosted_zones()['HostedZones']:
+        for rrsets in clientR53.list_resource_record_sets(HostedZoneId=zone['Id'])['ResourceRecordSets']:
             for tag in ["chef", "secure", "prediction", "transformation"]:
                 if tag in rrsets['Name']:
                     x.add_row([rrsets['Name'][:-1], rrsets["ResourceRecords"][0]["Value"]])
@@ -50,11 +52,11 @@ def getRoute53Records(client, doption):
         print x.get_html_string()
 
 
-def ec2Instances(awsConnConf, doption):
+def ec2Instances(awsconnection, doption):
     # session client for ec2
-    client = awsConnConf.session.client('ec2')
+    client = awsconnection.session.client('ec2')
     # get the ec2 resource from the session
-    ec2 = awsConnConf.session.resource('ec2')
+    ec2 = awsconnection.session.resource('ec2')
     # all vpc information in the region
     allVpcs = client.describe_vpcs()
     print "EC2 Instances"
@@ -106,12 +108,12 @@ def ec2Instances(awsConnConf, doption):
             print x.get_html_string(sortby="Instance Tag Name")
 
 
-def subnetInfo(awsConnConf, doption):
+def subnetInfo(awsconnection, doption):
     #
     # session client for ec2
-    client = awsConnConf.session.client('ec2')
+    client = awsconnection.session.client('ec2')
     # get the ec2 resource from the session
-    ec2 = awsConnConf.session.resource('ec2')
+    ec2 = awsconnection.session.resource('ec2')
     # all vpc information in the region
     allVpcs = client.describe_vpcs()
     # iterate over the vpc list
@@ -155,13 +157,13 @@ def subnetInfo(awsConnConf, doption):
             print x.get_html_string(sortby="Subnet - Friendly Name")
 
 
-def sgInfo(awsConnConf, doption):
+def sgInfo(awsconnection, doption):
     #
     #
     # session client for ec2
-    client = awsConnConf.session.client('ec2')
+    client = awsconnection.session.client('ec2')
     # get the ec2 resource from the session
-    ec2 = awsConnConf.session.resource('ec2')
+    ec2 = awsconnection.session.resource('ec2')
     # all vpc information in the region
     allVpcs = client.describe_vpcs()
     # iterate over the vpc list
@@ -214,7 +216,9 @@ def sgInfo(awsConnConf, doption):
             print x.get_html_string()
 
 
-def lisKeyPairs(client, doption):
+def lisKeyPairs(awsconnection, doption):
+    # session client for ec2
+    client = awsconnection.session.client('ec2')
     keypairs = client.describe_key_pairs()
     x = PrettyTable(["KeyName", "KeyFingerprint"])
     x.align["KeyName"] = "l"
@@ -230,7 +234,9 @@ def lisKeyPairs(client, doption):
         print x.get_html_string()
 
 
-def listAvailZones(client, doption):
+def listAvailZones(awsconnection, doption):
+    # session client for ec2
+    client = awsconnection.session.client('ec2')
     availZones = client.describe_availability_zones()
     x = PrettyTable(["RegionName", "ZoneName"])
     x.align["RegionName"] = "l"
@@ -246,12 +252,14 @@ def listAvailZones(client, doption):
         print x.get_html_string()
 
 
-def listLoadBalancers(client, doption):
+def listLoadBalancers(awsconnection, doption):
+    # 'elb' client
+    clientElb = awsconnection.session.client('elb')
     print "Load Balancers"
     x = PrettyTable(["DNS Name", "Scheme"])
     x.align["DNS Name"] = "l"
     lbNames = []
-    for item in client.describe_load_balancers()['LoadBalancerDescriptions']:
+    for item in clientElb.describe_load_balancers()['LoadBalancerDescriptions']:
         x.add_row([item['DNSName'], item['Scheme']])
 
     if doption == "table":
@@ -261,30 +269,22 @@ def listLoadBalancers(client, doption):
         print x.get_html_string()
 
 
-def listAll(awsConnConf, doption):
-    # session client for ec2
-    client = awsConnConf.session.client('ec2')
-    # get the ec2 resource from the session
-    ec2 = awsConnConf.session.resource('ec2')
-    # 'elb' client
-    clientElb = awsConnConf.session.client('elb')
-    # Route53 client
-    clientR53 = awsConnConf.session.client('route53')
+def listAll(awsconnection, doption):
     # all subnets
-    subnetInfo(awsConnConf, doption)
+    subnetInfo(awsconnection, doption)
     # all sec groups
-    sgInfo(awsConnConf, doption)
+    sgInfo(awsconnection, doption)
     # all ec2 instances
-    ec2Instances(awsConnConf, doption)
+    ec2Instances(awsconnection, doption)
     # list all keypairs
-    lisKeyPairs(client, doption)
+    lisKeyPairs(awsconnection, doption)
     # list availability zones
     print '\n'
-    listAvailZones(client, doption)
+    listAvailZones(awsconnection, doption)
     print '\n'
-    listLoadBalancers(clientElb, doption)
+    listLoadBalancers(awsconnection, doption)
     print '\n'
-    getRoute53Records(clientR53, doption)
+    getRoute53Records(awsconnection, doption)
 
 
 def parseCmdLineArgs():
@@ -316,11 +316,13 @@ def parseCmdLineArgs():
 
 if __name__=="__main__":
     args = parseCmdLineArgs()
-    awsConnConf = AwsConnectionConfig(args["awsaccountid"])
+    awsconnection = AwsConnection(args["awsaccountid"])
     callfunc = {
-        'all': 'listAll(awsConnConf, args["doption"])',
-        'vpcs': 'listVpcs(awsConnConf, args["doption"])',
-        'subnets': 'subnetInfo(awsConnConf, args["doption"])'
+        'all': 'listAll(awsconnection, args["doption"])',
+        'vpcs': 'listVpcs(awsconnection, args["doption"])',
+        'subnets': 'subnetInfo(awsconnection, args["doption"])',
+        'route53': 'listDnsRecords(awsconnection, args["doption"])',
+        'elbs': 'listLoadBalancers(awsconnection, args["doption"])'
     }
 
     func = callfunc.get(args["resources"])
