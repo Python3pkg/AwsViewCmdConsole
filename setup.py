@@ -5,7 +5,7 @@ setup(
     version='1.0',
     packages=['awscore'],
     scripts=['scripts/awsview'],
-    url='',
+    url='https://github.com/ajeeshvt/AwsViewCmdConsole',
     license='MIT',
     install_requires=['boto3', 'prettytable'],
 
