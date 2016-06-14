@@ -1,3 +1,0 @@
-#
-# AwsConnectionConfig.core package
-#

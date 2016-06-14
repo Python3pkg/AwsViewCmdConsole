@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-import os
-import sys
 from argparse import ArgumentParser
 from prettytable import PrettyTable
 from awscore.AwsConnection import AwsConnection
@@ -10,19 +8,27 @@ from awscore.AwsConnection import AwsConnection
 def listVpcs(awsconnection, doption):
     # all vpc information in the region
     allVpcs = awsconnection.ec2client.describe_vpcs()
-    x = PrettyTable(["Vpc Id", "Name"])
+    x = PrettyTable(["Vpc Id", "Name", "CIDR Block"])
     x.align["Vpc Id"] = "l"
     x.align["Name"] = "l"
-
+    x.align["CIDR Block"] = "l"
     '''
     iterate over the VPCs
     '''
     print '\n'
     print '{0}'.format("\033[1m" + "VPCs in the Account" + "\033[0m")
+
     for vpcs in allVpcs['Vpcs']:
+        Name = None
         if vpcs.get("Tags"):
-            print vpcs["Tags"]
-        x.add_row([vpcs['VpcId']])
+            for tag in vpcs["Tags"]:
+                if tag["Key"] == "Name":
+                    Name = tag["Value"]
+        else:
+            Name = "--"
+
+        x.add_row([vpcs['VpcId'], Name, vpcs['CidrBlock']])
+
 
     if doption == "table":
         print x
@@ -31,17 +37,19 @@ def listVpcs(awsconnection, doption):
         print x.get_html_string()        
 
 
-def getRoute53Records(awsconnection, doption):
+def listRoute53Records(awsconnection, doption):
     r53client = awsconnection.r53client
-    print "DNS Records(CNAMEs)"
-    x = PrettyTable(["CNAME", "ELB/ILB DNS Name"])
-    x.align["CNAME"] = "l"
-    x.align["ELB/ILB DNS Name"] = "l"    
+    print "DNS Records(Hosted Zones, A Records, CNAMEs)"
+    x = PrettyTable(["Name/Host/Alias", "Record Type", "Value", "Hosted Zone"])
+    x.align["Name/Host/Alias"] = "l"
+    x.align["Record Type"] = "l"
+    x.align["Value"] = "l"
+    x.align["Hosted Zone"] = "l"
     for zone in r53client.list_hosted_zones()['HostedZones']:
         for rrsets in r53client.list_resource_record_sets(HostedZoneId=zone['Id'])['ResourceRecordSets']:
-            for tag in ["chef", "secure", "prediction", "transformation"]:
-                if tag in rrsets['Name']:
-                    x.add_row([rrsets['Name'][:-1], rrsets["ResourceRecords"][0]["Value"]])
+            for type in ["A", "CNAME"]:
+                if type == rrsets['Type']:
+                    x.add_row([rrsets['Name'][:-1], rrsets['Type'], rrsets["ResourceRecords"][0]["Value"], zone['Name']])
     if doption == "table":
         print x
 
@@ -251,11 +259,54 @@ def listLoadBalancers(awsconnection, doption):
     # 'elb' client
     elbclient = awsconnection.elbclient
     print "Load Balancers"
-    x = PrettyTable(["DNS Name", "Scheme"])
+    x = PrettyTable(["DNS Name", "Scheme", "SourceSecurityGroup"])
     x.align["DNS Name"] = "l"
     lbNames = []
     for item in elbclient.describe_load_balancers()['LoadBalancerDescriptions']:
-        x.add_row([item['DNSName'], item['Scheme']])
+        x.add_row([item['DNSName'], item['Scheme'], item['SourceSecurityGroup']['GroupName']])
+
+    if doption == "table":
+        print x
+
+    if doption == "html":
+        print x.get_html_string()
+
+def listCfStacks(awsconnection, doption):
+    # cf client
+    cfclient = awsconnection.cfclient
+    # stack status
+    stack_status = [
+        'CREATE_IN_PROGRESS',
+        'CREATE_FAILED',
+        'CREATE_COMPLETE',
+        'ROLLBACK_IN_PROGRESS',
+        'ROLLBACK_FAILED',
+        'DELETE_IN_PROGRESS',
+        'DELETE_FAILED',
+        'UPDATE_IN_PROGRESS',
+        'UPDATE_COMPLETE_CLEANUP_IN_PROGRESS',
+        'UPDATE_COMPLETE',
+        'UPDATE_ROLLBACK_IN_PROGRESS',
+        'UPDATE_ROLLBACK_FAILED',
+        'UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS',
+        'UPDATE_ROLLBACK_COMPLETE'
+    ]
+
+    x = PrettyTable(["Stack Name", "Stack Status", "Creation Time", "Last Updated Time"])
+    x.align["Stack Name"] = "l"
+    x.align["Stack Status"] = "l"
+    x.align["Creation Time"] = "l"
+    x.align["Last Updated Time"] = "l"
+
+
+    print '\n'
+    print '{0}'.format("\033[1m" + "Cloud Formation Stacks in the Account" + "\033[0m")
+    for cfstack in cfclient.list_stacks()['StackSummaries']:
+        if cfstack['StackStatus'] in stack_status:
+            x.add_row([cfstack['StackName'],
+                       cfstack['StackStatus'],
+                       cfstack['CreationTime'],
+                       cfstack['LastUpdatedTime'] if cfstack.get('LastUpdatedTime') else "--"])
 
     if doption == "table":
         print x
@@ -279,7 +330,7 @@ def listAll(awsconnection, doption):
     print '\n'
     listLoadBalancers(awsconnection, doption)
     print '\n'
-    getRoute53Records(awsconnection, doption)
+    listRoute53Records(awsconnection, doption)
 
 
 def parseCmdLineArgs():
@@ -301,7 +352,7 @@ def parseCmdLineArgs():
     parser.add_argument("--list",
             action="store",
             required=True,
-            choices=["all", "vpcs", "subnets", "route53", "elbs"],
+            choices=["all", "vpcs", "subnets", "route53", "elbs", "cloudformation"],
             dest="resources",
             help="How do you want to display the results?")
 
@@ -316,8 +367,9 @@ if __name__=="__main__":
         'all': 'listAll(awsconnection, args["doption"])',
         'vpcs': 'listVpcs(awsconnection, args["doption"])',
         'subnets': 'subnetInfo(awsconnection, args["doption"])',
-        'route53': 'listDnsRecords(awsconnection, args["doption"])',
-        'elbs': 'listLoadBalancers(awsconnection, args["doption"])'
+        'route53': 'listRoute53Records(awsconnection, args["doption"])',
+        'elbs': 'listLoadBalancers(awsconnection, args["doption"])',
+        'cloudformation': 'listCfStacks(awsconnection, args["doption"])'
     }
 
     func = callfunc.get(args["resources"])
