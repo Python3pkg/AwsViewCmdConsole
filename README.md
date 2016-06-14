@@ -4,9 +4,9 @@ AwsViewCmdConsole
 It lists the resources in an AWS account in a tabular format. The default aws credentials file must be configured
 in ~/.aws/credentials as below:
 
-*[awstestaccount]*
-*aws_access_key_id = ABCDEFGHIJKLMNOPQRSTQ*
-*aws_secret_access_key = ksgdflkagsK86875MDNkSHk<NSDlnlkfdhlskjdl;adf*
+*[awstestaccount]*__
+*aws_access_key_id = ABCDEFGHIJKLMNOPQRSTQ*__
+*aws_secret_access_key = ksgdflkagsK86875MDNkSHk<NSDlnlkfdhlskjdl;adf*__
 
 
 What you need to run the tool?
