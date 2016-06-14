@@ -20,4 +20,4 @@ pip install AwsViewCmdConsole
 
 To run the tool, use the below command:
 
-awslist.py -n awstestaccount -d table --list all
+awsview -n awstestaccount -d table --list all
