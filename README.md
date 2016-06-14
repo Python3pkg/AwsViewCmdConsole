@@ -2,18 +2,22 @@ AwsViewCmdConsole
 =================
 
 It lists the resources in an AWS account in a tabular format. The default aws credentials file must be configured
-in ~/.aws/credentials
+in ~/.aws/credentials as below:
+
+[awstestaccount]
+aws_access_key_id = ABCDEFGHIJKLMNOPQRSTQ
+aws_secret_access_key = ksgdflkagsK86875MDNkSHk<NSDlnlkfdhlskjdl;adf
+
 
 What you need to run the tool?
 -----------------------------
 
 You need python 2.6 or 2.7, boto3 and prettytable
 
-To install boto3, use the below command
+To install AwsViewCmdConsole, run:
 
-pip install boto3
-pip install prettytable
+pip install AwsViewCmdConsole
 
 To run the tool, use the below command:
 
-python ./bin/awslist.py -n kaos-test -d table --list all
+awslist.py -n awstestaccount -d table --list all
