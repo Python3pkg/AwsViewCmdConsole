@@ -47,4 +47,11 @@
     <option name="SEND_ENVIRONMENT_VARIABLES_TO_SERVER" value="false" />
     <option name="SHOW_PATH" value="true" />
   </component>
+  <component name="PyTestFrameworkService">
+    <option name="SDK_TO_NOSETEST">
+      <map>
+        <entry key="/usr/local/Cellar/python/2.7.11/Frameworks/Python.framework/Versions/2.7/bin/python2.7" value="true" />
+      </map>
+    </option>
+  </component>
 </application>
