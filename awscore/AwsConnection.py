@@ -26,7 +26,7 @@ class AwsConnection(object):
         self.__config.read(self.awscred)
 
         if self.__config.has_option(self.awsaccno, "aws_session_token"):
-            self.__token = self.__config.get(self.awsaccno, "aws_session_token")
+            self.__session_token = self.__config.get(self.awsaccno, "aws_session_token")
 
         if self.__config.has_option(self.awsaccno, "region_name"):
             self.__region = self.__config.get(self.awsaccno, "region_name")
@@ -52,3 +52,6 @@ class AwsConnection(object):
 
         """ cloudformation client """
         self.cfclient = self.session.client('cloudformation')
+
+        """ rds client"""
+        self.rdsclient = self.session.client("rds")

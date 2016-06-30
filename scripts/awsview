@@ -314,6 +314,10 @@ def listCfStacks(awsconnection, doption):
     if doption == "html":
         print x.get_html_string()
 
+def listRds(awsconnection, doption):
+    rdsclient = awsconnection.rdsclient
+    for instance in rdsclient.describe_db_instances()['DBInstances']:
+        print instance['DBName'], instance['Endpoint']['Address'], instance['Endpoint']['Port']
 
 def listAll(awsconnection, doption):
     # all subnets
@@ -334,7 +338,7 @@ def listAll(awsconnection, doption):
 
 
 def parseCmdLineArgs():
-    parser = ArgumentParser()
+    parser = ArgumentParser(description='AwsViewCmdConsole')
 
     parser.add_argument("-n", "--aws-account-id",
             action="store",
@@ -349,12 +353,12 @@ def parseCmdLineArgs():
             dest="doption",
             help="How do you want to display the results?")
 
-    parser.add_argument("--list",
+    parser.add_argument("-l", "--list",
             action="store",
             required=True,
-            choices=["all", "vpcs", "subnets", "route53", "elbs", "cloudformation"],
+            choices=["all", "vpcs", "subnets", "route53", "elbs", "cloudformation", "rds"],
             dest="resources",
-            help="How do you want to display the results?")
+            help="What AWS resource details you need")
 
     args = vars(parser.parse_args())
 
@@ -369,7 +373,8 @@ if __name__=="__main__":
         'subnets': 'subnetInfo(awsconnection, args["doption"])',
         'route53': 'listRoute53Records(awsconnection, args["doption"])',
         'elbs': 'listLoadBalancers(awsconnection, args["doption"])',
-        'cloudformation': 'listCfStacks(awsconnection, args["doption"])'
+        'cloudformation': 'listCfStacks(awsconnection, args["doption"])',
+        'rds': 'listRds(awsconnection, args["doption"])'
     }
 
     func = callfunc.get(args["resources"])
