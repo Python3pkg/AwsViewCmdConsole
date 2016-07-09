@@ -4,6 +4,7 @@
     <extensionMap>
       <mapping ext="groovy" type="PLAIN_TEXT" />
       <mapping ext="cfg" type="PLAIN_TEXT" />
+      <mapping pattern="init" type="Python" />
     </extensionMap>
   </component>
 </application>
