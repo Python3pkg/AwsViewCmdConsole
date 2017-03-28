@@ -29,7 +29,7 @@ class AwsConnection(object):
             self.__session_token = self.__config.get(self.awsaccno, "aws_session_token")
 
         if self.__config.has_option(self.awsaccno, "region_name"):
-            self.__region = self.__config.get(self.awsaccno, "region_name")
+            self.aws_region = self.__config.get(self.awsaccno, "region_name")
         else:
             self.aws_region = 'us-west-2'
 
