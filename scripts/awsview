@@ -15,8 +15,8 @@ def listVpcs(awsconnection, doption):
     '''
     iterate over the VPCs
     '''
-    print '\n'
-    print '{0}'.format("\033[1m" + "VPCs in the Account" + "\033[0m")
+    print('\n')
+    print('{0}'.format("\033[1m" + "VPCs in the Account" + "\033[0m"))
 
     for vpcs in allVpcs['Vpcs']:
         Name = None
@@ -31,15 +31,15 @@ def listVpcs(awsconnection, doption):
 
 
     if doption == "table":
-        print x
+        print(x)
 
     elif doption == "html":
-        print x.get_html_string()        
+        print(x.get_html_string())
 
 
 def listRoute53Records(awsconnection, doption):
     r53client = awsconnection.r53client
-    print "DNS Records(Hosted Zones, A Records, CNAMEs)"
+    print("DNS Records(Hosted Zones, A Records, CNAMEs)")
     x = PrettyTable(["Name/Host/Alias", "Record Type", "Value", "Hosted Zone"])
     x.align["Name/Host/Alias"] = "l"
     x.align["Record Type"] = "l"
@@ -51,10 +51,10 @@ def listRoute53Records(awsconnection, doption):
                 if type == rrsets['Type']:
                     x.add_row([rrsets['Name'][:-1], rrsets['Type'], rrsets["ResourceRecords"][0]["Value"], zone['Name']])
     if doption == "table":
-        print x
+        print(x)
 
     elif doption == "html":
-        print x.get_html_string()
+        print(x.get_html_string())
 
 
 def ec2Instances(awsconnection, doption):
@@ -62,15 +62,15 @@ def ec2Instances(awsconnection, doption):
     ec2client = awsconnection.ec2client
     # all vpc information in the region
     allVpcs = ec2client.describe_vpcs()
-    print "EC2 Instances"
+    print("EC2 Instances")
     # iterate over the vpc list
     for vpcs in allVpcs['Vpcs']:
         vpcid = vpcs['VpcId']
-        print '\n'
-        print '{0}'.format("\033[1m" + "Vpc Id" + "\033[0m")
-        print '{0}'.format("------")
-        print '{0}'.format(vpcs['VpcId'])
-        print '\n'
+        print('\n')
+        print('{0}'.format("\033[1m" + "Vpc Id" + "\033[0m"))
+        print('{0}'.format("------"))
+        print('{0}'.format(vpcs['VpcId']))
+        print('\n')
         x = PrettyTable(["Instance Tag Name", "DNS Name", "Private IP Address", "Public IP Address", "AMI Id"])
         x.align["Instance Tag Name"] = "l"
         x.align["DNS Name"] = "l"
@@ -105,10 +105,10 @@ def ec2Instances(awsconnection, doption):
                 x.add_row([tagName, dnsName, pvtIpAddress, pubIpAddress, imageId])
 
         if doption == "table":
-            print x.get_string(sortby="Instance Tag Name")
+            print(x.get_string(sortby="Instance Tag Name"))
 
         elif doption == "html":
-            print x.get_html_string(sortby="Instance Tag Name")
+            print(x.get_html_string(sortby="Instance Tag Name"))
 
 
 def subnetInfo(awsconnection, doption):
@@ -122,14 +122,14 @@ def subnetInfo(awsconnection, doption):
     # iterate over the vpc list
     for vpcs in allVpcs['Vpcs']:
         vpcid = vpcs['VpcId']
-        print '\n'
-        print '{0}'.format("\033[1m" + "Vpc Id" + "\033[0m")
-        print '{0}'.format("------")
-        print '{0}'.format(vpcs['VpcId'])
-        print '\n'
+        print('\n')
+        print('{0}'.format("\033[1m" + "Vpc Id" + "\033[0m"))
+        print('{0}'.format("------"))
+        print('{0}'.format(vpcs['VpcId']))
+        print('\n')
         subnet_name = None
         subnets = ec2resource.Vpc(vpcid).subnets.all()
-        print "Subnet Information"
+        print("Subnet Information")
         x = PrettyTable(["Subnet Id", "CIDR Block", "Subnet - Friendly Name", "Avail. IP Count", "No. of Used IPs", "Availability Zone"])
         x.align["Subnet Id"] = "l"
         x.align["CIDR Block"] = "l"
@@ -155,9 +155,9 @@ def subnetInfo(awsconnection, doption):
                 i,
                 subnet.availability_zone])
         if doption == "table":
-            print x.get_string(sortby="Subnet - Friendly Name")
+            print(x.get_string(sortby="Subnet - Friendly Name"))
         elif doption == "html":
-            print x.get_html_string(sortby="Subnet - Friendly Name")
+            print(x.get_html_string(sortby="Subnet - Friendly Name"))
 
 
 def sgInfo(awsconnection, doption):
@@ -172,14 +172,14 @@ def sgInfo(awsconnection, doption):
     # iterate over the vpc list
     for vpcs in allVpcs['Vpcs']:
         vpcid = vpcs['VpcId']
-        print '\n'
-        print '{0}'.format("\033[1m" + "Vpc Id" + "\033[0m")
-        print '{0}'.format("------")
-        print '{0}'.format(vpcs['VpcId'])
-        print '\n'
+        print('\n')
+        print('{0}'.format("\033[1m" + "Vpc Id" + "\033[0m"))
+        print('{0}'.format("------"))
+        print('{0}'.format(vpcs['VpcId']))
+        print('\n')
         sentinel = object()
         secgroups = ec2resource.Vpc(vpcid).security_groups.all()
-        print "Security Groups Information"
+        print("Security Groups Information")
         x = PrettyTable(["Security Group Id", "Security Group Name", "ACLs - Source IP", "ACLs - ToPort"])
         x.align["Security Group Id"] = "l"
         x.align["Security Group Name"] = "l"
@@ -213,10 +213,10 @@ def sgInfo(awsconnection, doption):
                   "---------------"])
                 i += 1
         if doption == "table":
-            print x
+            print(x)
 
         if doption == "html":
-            print x.get_html_string()
+            print(x.get_html_string())
 
 
 def lisKeyPairs(awsconnection, doption):
@@ -231,10 +231,10 @@ def lisKeyPairs(awsconnection, doption):
         x.add_row([keypair['KeyName'], keypair['KeyFingerprint']])
 
     if doption == "table":
-        print x
+        print(x)
 
     if doption == "html":
-        print x.get_html_string()
+        print(x.get_html_string())
 
 
 def listAvailZones(awsconnection, doption):
@@ -249,16 +249,16 @@ def listAvailZones(awsconnection, doption):
         x.add_row([zone["RegionName"], zone["ZoneName"]])
 
     if doption == "table":
-        print x
+        print(x)
 
     if doption == "html":
-        print x.get_html_string()
+        print(x.get_html_string())
 
 
 def listLoadBalancers(awsconnection, doption):
     # 'elb' client
     elbclient = awsconnection.elbclient
-    print "Load Balancers"
+    print("Load Balancers")
     x = PrettyTable(["DNS Name", "Scheme", "SourceSecurityGroup"])
     x.align["DNS Name"] = "l"
     lbNames = []
@@ -266,10 +266,10 @@ def listLoadBalancers(awsconnection, doption):
         x.add_row([item['DNSName'], item['Scheme'], item['SourceSecurityGroup']['GroupName']])
 
     if doption == "table":
-        print x
+        print(x)
 
     if doption == "html":
-        print x.get_html_string()
+        print(x.get_html_string())
 
 def listCfStacks(awsconnection, doption):
     # cf client
@@ -299,8 +299,8 @@ def listCfStacks(awsconnection, doption):
     x.align["Last Updated Time"] = "l"
 
 
-    print '\n'
-    print '{0}'.format("\033[1m" + "Cloud Formation Stacks in the Account" + "\033[0m")
+    print('\n')
+    print('{0}'.format("\033[1m" + "Cloud Formation Stacks in the Account" + "\033[0m"))
     for cfstack in cfclient.list_stacks()['StackSummaries']:
         if cfstack['StackStatus'] in stack_status:
             x.add_row([cfstack['StackName'],
@@ -309,15 +309,15 @@ def listCfStacks(awsconnection, doption):
                        cfstack['LastUpdatedTime'] if cfstack.get('LastUpdatedTime') else "--"])
 
     if doption == "table":
-        print x
+        print(x)
 
     if doption == "html":
-        print x.get_html_string()
+        print(x.get_html_string())
 
 def listRds(awsconnection, doption):
     rdsclient = awsconnection.rdsclient
     for instance in rdsclient.describe_db_instances()['DBInstances']:
-        print instance['DBName'], instance['Endpoint']['Address'], instance['Endpoint']['Port']
+        print(instance['DBName'], instance['Endpoint']['Address'], instance['Endpoint']['Port'])
 
 def listAll(awsconnection, doption):
     # all subnets
@@ -329,11 +329,11 @@ def listAll(awsconnection, doption):
     # list all keypairs
     lisKeyPairs(awsconnection, doption)
     # list availability zones
-    print '\n'
+    print('\n')
     listAvailZones(awsconnection, doption)
-    print '\n'
+    print('\n')
     listLoadBalancers(awsconnection, doption)
-    print '\n'
+    print('\n')
     listRoute53Records(awsconnection, doption)
 
 

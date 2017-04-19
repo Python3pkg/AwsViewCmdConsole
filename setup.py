@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='AwsViewCmdConsole',
-    version='1.0.4',
+    version='1.0.6',
     packages=['awscore'],
     scripts=['scripts/awsview'],
     url='https://github.com/ajeeshvt/AwsViewCmdConsole',

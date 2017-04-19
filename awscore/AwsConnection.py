@@ -1,5 +1,5 @@
 from os.path import expanduser
-from ConfigParser import ConfigParser
+from configparser import ConfigParser
 from boto3.session import Session
 
 
