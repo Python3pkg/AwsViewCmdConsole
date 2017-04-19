@@ -2,11 +2,11 @@ from distutils.core import setup
 
 setup(
     name='AwsViewCmdConsole',
-    version='1.0.6',
+    version='1.0.7',
     packages=['awscore'],
     scripts=['scripts/awsview'],
     url='https://github.com/ajeeshvt/AwsViewCmdConsole',
-    download_url='https://github.com/ajeeshvt/AwsViewCmdConsole/tarball/1.0.4',
+    download_url='https://github.com/ajeeshvt/AwsViewCmdConsole/tarball/1.0.7',
     license='MIT',
     install_requires=['boto3', 'prettytable'],
     author='Ajeesh T Vijayan',
